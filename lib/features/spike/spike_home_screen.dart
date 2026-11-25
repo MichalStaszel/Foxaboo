@@ -49,7 +49,7 @@ class SpikeHomeScreen extends ConsumerWidget {
                   _TargetChip(
                     label: '${c.words['pl']} · ${c.words['en']}',
                     verdict: results.best('color/${c.id}'),
-                    onTap: () => context.go('/hunt/color/${c.id}'),
+                    onTap: () => context.push('/spike/hunt/color/${c.id}'),
                   ),
               ],
             ),
@@ -170,7 +170,7 @@ class _ItemTile extends StatelessWidget {
           ].join(' · '),
         ),
         trailing: const Icon(Icons.photo_camera_outlined),
-        onTap: () => context.go('/hunt/item/${item.id}'),
+        onTap: () => context.push('/spike/hunt/item/${item.id}'),
       );
 }
 

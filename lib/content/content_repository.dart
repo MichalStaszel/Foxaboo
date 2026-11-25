@@ -22,3 +22,9 @@ final contentRepositoryProvider =
 final basePackProvider = FutureProvider<ContentPack>(
   (ref) => ref.watch(contentRepositoryProvider).loadPack('base'),
 );
+
+/// The base pack, loaded once in `main` before the first frame so screens
+/// can read it synchronously.
+final contentPackProvider = Provider<ContentPack>(
+  (ref) => throw UnimplementedError('override in main'),
+);

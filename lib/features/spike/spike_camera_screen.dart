@@ -146,7 +146,7 @@ class _SpikeCameraScreenState extends ConsumerState<SpikeCameraScreen>
               padding: const EdgeInsets.all(16),
               child: Column(
                 children: [
-                  _TaskBar(target: target, onBack: () => context.go('/')),
+                  _TaskBar(target: target, onBack: () => context.pop()),
                   const Spacer(),
                   if (_last != null) _ResultPanel(result: _last!),
                   const SizedBox(height: 16),

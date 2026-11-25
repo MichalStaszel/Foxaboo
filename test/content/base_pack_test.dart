@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:foxaboo/content/models.dart';
+import 'package:foxaboo/l10n/languages.dart';
 import 'package:foxaboo/recognition/color_classifier.dart';
 
 /// Labels of the ML Kit base image-labeling model that the pack may use.
@@ -58,6 +59,19 @@ void main() {
   test('every colour is one the classifier knows', () {
     for (final c in pack.colors) {
       expect(huntColors, contains(c.id));
+    }
+  });
+
+  test('rooms, colours and items have words in every app language', () {
+    final all = <String, Words>{
+      for (final r in pack.rooms) 'room ${r.id}': r.words,
+      for (final c in pack.colors) 'colour ${c.id}': c.words,
+      for (final i in pack.items) 'item ${i.id}': i.words,
+    };
+    for (final MapEntry(:key, :value) in all.entries) {
+      for (final lang in languages) {
+        expect(value[lang.code], isNotEmpty, reason: '$key/${lang.code}');
+      }
     }
   });
 }
