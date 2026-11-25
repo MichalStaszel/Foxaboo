@@ -1,0 +1,59 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          # Reuse Gradle downloads between runs; Maven Central rate-limits
+          # (HTTP 429) runners that fetch the whole toolchain every time.
+          cache: gradle
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: 3.50.1
+          cache: true
+
+      - run: flutter pub get
+      - run: flutter analyze
+      - run: flutter test
+
+      # A debug APK to install on a phone for the recognition spike.
+      - run: flutter build apk --debug
+      - uses: actions/upload-artifact@v4
+        with:
+          name: foxaboo-debug-apk
+          path: build/app/outputs/flutter-apk/app-debug.apk
+          retention-days: 14
+
+      # Same APK as a direct download for phones:
+      # https://github.com/MichalStaszel/Foxaboo/releases/download/spike-latest/foxaboo-spike-debug.apk
+      - name: Publish APK as the spike prerelease
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          cp build/app/outputs/flutter-apk/app-debug.apk foxaboo-spike-debug.apk
+          if ! gh release view spike-latest >/dev/null 2>&1; then
+            gh release create spike-latest --prerelease --target "$HEAD_SHA" \
+              --title "Foxaboo spike (debug APK)" \
+              --notes "Debug build of the recognition spike for testing on a phone. Updated on every push to an open pull request."
+          fi
+          gh release upload spike-latest foxaboo-spike-debug.apk --clobber
