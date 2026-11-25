@@ -19,6 +19,9 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
+          # Reuse Gradle downloads between runs; Maven Central rate-limits
+          # (HTTP 429) runners that fetch the whole toolchain every time.
+          cache: gradle
 
       - uses: subosito/flutter-action@v2
         with:
