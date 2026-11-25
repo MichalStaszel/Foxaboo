@@ -22,8 +22,10 @@ flutter test
 flutter run            # on an Android phone with USB debugging
 ```
 
-Every pull request also builds a debug APK in GitHub Actions
-(artifact `foxaboo-debug-apk`) that you can install directly on a phone.
+Every pull request also builds a debug APK in GitHub Actions. The latest one
+is published as the `spike-latest` prerelease, so a phone signed in to GitHub
+can download it directly:
+https://github.com/MichalStaszel/Foxaboo/releases/download/spike-latest/foxaboo-spike-debug.apk
 
 ## Layout
 
