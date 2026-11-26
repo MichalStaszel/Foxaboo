@@ -26,75 +26,89 @@ class PrivacyPromise extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final s = strings;
-    return ListView(
-      padding: const EdgeInsets.fromLTRB(24, 12, 24, 40),
-      children: [
-        const _PhoneNotCloud(),
-        const SizedBox(height: 12),
-        Text(
-          s.t('promiseTitle'),
-          style: display(28),
-          textAlign: TextAlign.center,
-        ),
-        const SizedBox(height: 4),
-        Text(
-          s.t('promiseSub'),
-          style: body(15, color: FoxColors.muted, weight: FontWeight.w600),
-          textAlign: TextAlign.center,
-        ),
-        const SizedBox(height: 16),
-        _Promise(
-          icon: Icons.photo_camera_rounded,
-          color: FoxColors.coral,
-          text: s.t('promisePhoto'),
-        ),
-        _Promise(
-          icon: Icons.wifi_off_rounded,
-          color: FoxColors.sky,
-          text: s.t('promiseOffline'),
-        ),
-        _Promise(
-          icon: Icons.no_accounts_rounded,
-          color: const Color(0xFF8E5BD6),
-          text: s.t('promiseAccount'),
-        ),
-        _Promise(
-          icon: Icons.block_rounded,
-          color: FoxColors.jungle,
-          text: s.t('promiseAds'),
-        ),
-        const SizedBox(height: 4),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-          decoration: BoxDecoration(
-            color: const Color(0xFFFFF3CF),
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Row(
-            children: [
-              const Icon(
-                Icons.airplanemode_active_rounded,
-                color: FoxColors.sunDark,
-                size: 24,
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Text(
-                  s.t('promiseAirplane'),
-                  style: body(13, weight: FontWeight.w600),
+    const pad = EdgeInsets.fromLTRB(28, 12, 28, 32);
+    // Spread over the whole screen when it fits, scroll when it doesn't.
+    return LayoutBuilder(
+      builder: (context, box) => SingleChildScrollView(
+        padding: pad,
+        child: ConstrainedBox(
+          constraints: BoxConstraints(minHeight: box.maxHeight - pad.vertical),
+          child: IntrinsicHeight(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const _PhoneNotCloud(),
+                const SizedBox(height: 16),
+                Text(s.t('promiseTitle'),
+                    style: display(28), textAlign: TextAlign.center),
+                const SizedBox(height: 4),
+                Text(
+                  s.t('promiseSub'),
+                  style: body(16,
+                      color: FoxColors.muted, weight: FontWeight.w600),
+                  textAlign: TextAlign.center,
                 ),
-              ),
-            ],
+                const Spacer(),
+                const SizedBox(height: 24),
+                _Promise(
+                  icon: Icons.photo_camera_rounded,
+                  color: FoxColors.coral,
+                  text: s.t('promisePhoto'),
+                ),
+                _Promise(
+                  icon: Icons.wifi_off_rounded,
+                  color: FoxColors.sky,
+                  text: s.t('promiseOffline'),
+                ),
+                _Promise(
+                  icon: Icons.no_accounts_rounded,
+                  color: const Color(0xFF8E5BD6),
+                  text: s.t('promiseAccount'),
+                ),
+                _Promise(
+                  icon: Icons.block_rounded,
+                  color: FoxColors.jungle,
+                  text: s.t('promiseAds'),
+                ),
+                const SizedBox(height: 4),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFFF3CF),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.airplanemode_active_rounded,
+                          color: FoxColors.sunDark, size: 22),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(s.t('promiseAirplane'),
+                            style: body(14, weight: FontWeight.w600)),
+                      ),
+                    ],
+                  ),
+                ),
+                const Spacer(flex: 2),
+                const SizedBox(height: 28),
+                Center(
+                  child: SizedBox(
+                    width: 240,
+                    child: BigButton(
+                      height: 58,
+                      label: buttonLabel ?? s.t('promiseOk'),
+                      icon: Icons.arrow_forward_rounded,
+                      onPressed: onDone,
+                    ),
+                  ),
+                ),
+                if (footer != null) ...[const SizedBox(height: 24), footer!],
+              ],
+            ),
           ),
         ),
-        const SizedBox(height: 20),
-        BigButton(
-          label: buttonLabel ?? s.t('promiseOk'),
-          icon: Icons.arrow_forward_rounded,
-          onPressed: onDone,
-        ),
-        if (footer != null) ...[const SizedBox(height: 24), footer!],
-      ],
+      ),
     );
   }
 }
@@ -108,21 +122,21 @@ class _Promise extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.only(bottom: 12),
+    padding: const EdgeInsets.only(bottom: 20),
     child: Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Container(
-          width: 32,
-          height: 32,
+          width: 36,
+          height: 36,
           decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-          child: Icon(icon, color: Colors.white, size: 18),
+          child: Icon(icon, color: Colors.white, size: 20),
         ),
-        const SizedBox(width: 12),
+        const SizedBox(width: 16),
         Expanded(
           child: Text(
             text,
-            style: body(14, weight: FontWeight.w700).copyWith(height: 1.3),
+            style: body(16, weight: FontWeight.w700).copyWith(height: 1.3),
           ),
         ),
       ],

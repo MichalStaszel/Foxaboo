@@ -27,8 +27,8 @@ void main() {
     await pumpApp(tester);
     // First the promise that nothing leaves the phone.
     expect(find.text('Everything stays on this phone'), findsOneWidget);
-    await tester.scrollUntilVisible(find.text('Got it, next'), 300);
-    await tester.tap(find.text('Got it, next'));
+    await tester.scrollUntilVisible(find.text('Got it'), 300);
+    await tester.tap(find.text('Got it'));
     await tester.pumpAndSettle();
     expect(find.text('Welcome to Foxaboo!'), findsOneWidget);
 
