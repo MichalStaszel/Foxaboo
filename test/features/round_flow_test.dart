@@ -4,8 +4,9 @@ import 'package:material_ui/material_ui.dart';
 import 'harness.dart';
 
 void main() {
-  testWidgets('a round: task card, hunt, time up, next task, end',
-      (tester) async {
+  testWidgets('a round: task card, hunt, time up, next task, end', (
+    tester,
+  ) async {
     final narrator = await pumpApp(tester, data: zosia);
     await tester.tap(find.text('Polujemy!'));
     await tester.pumpAndSettle();
@@ -50,11 +51,8 @@ void main() {
     await tester.tap(find.text('Polujemy!'));
     await tester.pumpAndSettle();
 
-    String word() => tester
-        .widgetList<Text>(find.descendant(
-            of: find.byType(FittedBox), matching: find.byType(Text)))
-        .first
-        .data!;
+    String word() =>
+        tester.widget<Text>(find.byKey(const Key('task-word'))).data!;
     final before = word();
     await tester.tap(find.text('Wylosuj coś innego'));
     await tester.pumpAndSettle();

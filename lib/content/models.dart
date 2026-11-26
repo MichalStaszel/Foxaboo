@@ -36,23 +36,28 @@ class Item {
     required this.room,
     required this.words,
     required this.labels,
+    this.detect = const [],
     this.difficulty = 1,
   });
 
   factory Item.fromJson(Map<String, dynamic> json) => Item(
-        id: json['id'] as String,
-        room: json['room'] as String,
-        words: _words(json['words']),
-        labels: List<String>.from(json['labels'] as List<dynamic>),
-        difficulty: (json['difficulty'] as int?) ?? 1,
-      );
+    id: json['id'] as String,
+    room: json['room'] as String,
+    words: _words(json['words']),
+    labels: List<String>.from(json['labels'] as List<dynamic>? ?? const []),
+    detect: List<String>.from(json['detect'] as List<dynamic>? ?? const []),
+    difficulty: (json['difficulty'] as int?) ?? 1,
+  );
 
   final String id;
   final String room;
   final Words words;
 
-  /// Labels of the recognition model that count as finding this item.
+  /// ML Kit image labels that count as finding this item.
   final List<String> labels;
+
+  /// Object detector (COCO) classes that count as finding this item.
+  final List<String> detect;
 
   /// 1 = easy, 3 = hard. Easy items come first for new players.
   final int difficulty;
@@ -67,20 +72,20 @@ class ContentPack {
   });
 
   factory ContentPack.fromJson(Map<String, dynamic> json) => ContentPack(
-        id: json['id'] as String,
-        rooms: [
-          for (final r in json['rooms'] as List<dynamic>)
-            Room.fromJson(r as Map<String, dynamic>),
-        ],
-        colors: [
-          for (final c in json['colors'] as List<dynamic>)
-            HuntColor.fromJson(c as Map<String, dynamic>),
-        ],
-        items: [
-          for (final i in json['items'] as List<dynamic>)
-            Item.fromJson(i as Map<String, dynamic>),
-        ],
-      );
+    id: json['id'] as String,
+    rooms: [
+      for (final r in json['rooms'] as List<dynamic>)
+        Room.fromJson(r as Map<String, dynamic>),
+    ],
+    colors: [
+      for (final c in json['colors'] as List<dynamic>)
+        HuntColor.fromJson(c as Map<String, dynamic>),
+    ],
+    items: [
+      for (final i in json['items'] as List<dynamic>)
+        Item.fromJson(i as Map<String, dynamic>),
+    ],
+  );
 
   final String id;
   final List<Room> rooms;
@@ -114,4 +119,13 @@ class ColorTarget extends Target {
   String get id => color.id;
   @override
   Words get words => color.words;
+}
+
+extension PackIds on ContentPack {
+  /// Ids of every target in the pack, to ignore finds of items that a newer
+  /// pack no longer has.
+  Set<String> get targetIds => {
+    for (final c in colors) c.id,
+    for (final i in items) i.id,
+  };
 }

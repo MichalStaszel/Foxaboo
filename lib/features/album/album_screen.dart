@@ -4,6 +4,7 @@ import 'package:material_ui/material_ui.dart';
 
 import '../../app/theme.dart';
 import '../../content/content_repository.dart';
+import '../../content/models.dart';
 import '../../data/app_store.dart';
 import '../../game/round_engine.dart';
 import '../../l10n/strings.dart';
@@ -66,7 +67,10 @@ class _AlbumScreenState extends ConsumerState<AlbumScreen> {
                   ),
                   Pill(
                     color: FoxColors.sun,
-                    child: Text('${finds.length} / $total', style: body(16)),
+                    child: Text(
+                      '${finds.keys.where(pack.targetIds.contains).length} / $total',
+                      style: body(16),
+                    ),
                   ),
                 ],
               ),
@@ -96,16 +100,21 @@ class _AlbumScreenState extends ConsumerState<AlbumScreen> {
                 ),
               ),
               const SizedBox(height: 12),
-              Text(s.t('albumHint'),
-                  style: body(15,
-                      color: FoxColors.muted, weight: FontWeight.w600)),
+              Text(
+                s.t('albumHint'),
+                style: body(
+                  15,
+                  color: FoxColors.muted,
+                  weight: FontWeight.w600,
+                ),
+              ),
               const SizedBox(height: 12),
               Expanded(
                 child: GridView.count(
                   crossAxisCount: 3,
                   mainAxisSpacing: 12,
                   crossAxisSpacing: 12,
-                  childAspectRatio: 0.7,
+                  childAspectRatio: 0.68,
                   children: [
                     for (final t in targets)
                       _AlbumTile(
@@ -113,16 +122,16 @@ class _AlbumScreenState extends ConsumerState<AlbumScreen> {
                         sticker: Sticker(
                           target: t,
                           learnLang: learn,
-                          size: 68,
+                          size: 84,
                           found: finds.containsKey(t.id),
                         ),
                         native: t.words[native] ?? '',
                         learn: t.words[learn] ?? '',
                         onTap: finds.containsKey(t.id)
                             ? () => narrator.say([
-                                  (text: t.words[native] ?? '', lang: native),
-                                  (text: t.words[learn] ?? '', lang: learn),
-                                ])
+                                (text: t.words[native] ?? '', lang: native),
+                                (text: t.words[learn] ?? '', lang: learn),
+                              ])
                             : null,
                       ),
                   ],
@@ -153,31 +162,35 @@ class _AlbumTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Material(
-        color: found ? Colors.white : const Color(0x80FFFFFF),
-        borderRadius: BorderRadius.circular(20),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(20),
-          onTap: onTap,
-          child: Padding(
-            padding: const EdgeInsets.all(8),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                sticker,
-                const SizedBox(height: 8),
-                if (found) ...[
-                  Text(native,
-                      style: body(15, weight: FontWeight.w800),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis),
-                  Text(learn,
-                      style: body(13, color: FoxColors.muted),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis),
-                ],
-              ],
-            ),
-          ),
+    color: found ? Colors.white : const Color(0x80FFFFFF),
+    borderRadius: BorderRadius.circular(20),
+    child: InkWell(
+      borderRadius: BorderRadius.circular(20),
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.all(8),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            sticker,
+            const SizedBox(height: 8),
+            if (found) ...[
+              Text(
+                learn,
+                style: display(18),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              Text(
+                native,
+                style: body(13, color: FoxColors.muted),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ],
         ),
-      );
+      ),
+    ),
+  );
 }

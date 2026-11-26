@@ -4,6 +4,7 @@ import 'package:material_ui/material_ui.dart';
 
 import '../../app/theme.dart';
 import '../../content/content_repository.dart';
+import '../../content/models.dart';
 import '../../data/app_store.dart';
 import '../../game/round_engine.dart';
 import '../../l10n/strings.dart';
@@ -39,7 +40,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final narrator = ref.watch(narratorProvider);
     final settings = data.settings;
     final profile = data.activeProfile;
-    final found = data.activeProgress.finds.length;
+    final found = data.activeProgress.finds.keys
+        .where(pack.targetIds.contains)
+        .length;
     final total = pack.items.length + pack.colors.length;
 
     final modes = [
@@ -114,7 +117,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           onPressed: () => narrator.say([
                             (
                               text: s.t('huntQuestion'),
-                              lang: settings.nativeLang
+                              lang: settings.nativeLang,
                             ),
                           ]),
                           icon: const Icon(Icons.volume_up_rounded),
@@ -141,8 +144,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         onTap: () => select(m.id, m.words),
                         child: m.id == colorsMode
                             ? const _ColorDots()
-                            : Icon(roomIcons[m.id] ?? Icons.home,
-                                size: 40, color: FoxColors.jungle),
+                            : Icon(
+                                roomIcons[m.id] ?? Icons.home,
+                                size: 40,
+                                color: FoxColors.jungle,
+                              ),
                       ),
                   ],
                 ),
@@ -156,12 +162,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               const SizedBox(height: 16),
               BigButton(
                 label: s.t('letsHunt'),
-                icon: unlocked ? Icons.photo_camera_rounded : Icons.lock_rounded,
+                icon: unlocked
+                    ? Icons.photo_camera_rounded
+                    : Icons.lock_rounded,
                 onPressed: unlocked
                     ? () => context.push('/round/$_mode')
                     : () => narrator.say([
-                          (text: s.t('lockedRoom'), lang: settings.nativeLang),
-                        ]),
+                        (text: s.t('lockedRoom'), lang: settings.nativeLang),
+                      ]),
                 color: unlocked ? FoxColors.jungle : FoxColors.muted,
                 shadow: unlocked ? FoxColors.jungleDark : FoxColors.ink,
               ),
@@ -212,14 +220,13 @@ class _Avatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => CircleAvatar(
-        radius: size / 2,
-        backgroundColor:
-            FoxColors.stickers[colorIndex % FoxColors.stickers.length],
-        child: Text(
-          name.isEmpty ? '?' : name.characters.first.toUpperCase(),
-          style: display(size * 0.5, color: Colors.white),
-        ),
-      );
+    radius: size / 2,
+    backgroundColor: FoxColors.stickers[colorIndex % FoxColors.stickers.length],
+    child: Text(
+      name.isEmpty ? '?' : name.characters.first.toUpperCase(),
+      style: display(size * 0.5, color: Colors.white),
+    ),
+  );
 }
 
 class _ProfileChip extends StatelessWidget {
@@ -235,28 +242,28 @@ class _ProfileChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Material(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(999),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(999),
-          onTap: onTap,
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(4, 4, 16, 4),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                _Avatar(name: name, colorIndex: colorIndex, size: 36),
-                const SizedBox(width: 10),
-                Text(name, style: body(18, weight: FontWeight.w800)),
-                if (onTap != null) ...[
-                  const SizedBox(width: 4),
-                  const Icon(Icons.expand_more, color: FoxColors.muted),
-                ],
-              ],
-            ),
-          ),
+    color: Colors.white,
+    borderRadius: BorderRadius.circular(999),
+    child: InkWell(
+      borderRadius: BorderRadius.circular(999),
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(4, 4, 16, 4),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _Avatar(name: name, colorIndex: colorIndex, size: 36),
+            const SizedBox(width: 10),
+            Text(name, style: body(18, weight: FontWeight.w800)),
+            if (onTap != null) ...[
+              const SizedBox(width: 4),
+              const Icon(Icons.expand_more, color: FoxColors.muted),
+            ],
+          ],
         ),
-      );
+      ),
+    ),
+  );
 }
 
 class _ModeCard extends StatelessWidget {
@@ -276,49 +283,51 @@ class _ModeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => GestureDetector(
-        onTap: onTap,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 150),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(24),
-            border: Border.all(
-              color: selected ? FoxColors.jungle : FoxColors.line,
-              width: selected ? 4 : 2,
+    onTap: onTap,
+    child: AnimatedContainer(
+      duration: const Duration(milliseconds: 150),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: selected ? FoxColors.jungle : FoxColors.line,
+          width: selected ? 4 : 2,
+        ),
+      ),
+      padding: const EdgeInsets.all(12),
+      child: Stack(
+        children: [
+          Center(
+            child: Opacity(
+              opacity: locked ? 0.45 : 1,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  child,
+                  const SizedBox(height: 8),
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      label,
+                      style: display(22),
+                      textAlign: TextAlign.center,
+                      maxLines: 1,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
-          padding: const EdgeInsets.all(12),
-          child: Stack(
-            children: [
-              Center(
-                child: Opacity(
-                  opacity: locked ? 0.45 : 1,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      child,
-                      const SizedBox(height: 8),
-                      Text(
-                        label,
-                        style: display(22),
-                        textAlign: TextAlign.center,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              if (locked)
-                const Positioned(
-                  top: 0,
-                  right: 0,
-                  child: Icon(Icons.lock_rounded, color: FoxColors.muted),
-                ),
-            ],
-          ),
-        ),
-      );
+          if (locked)
+            const Positioned(
+              top: 0,
+              right: 0,
+              child: Icon(Icons.lock_rounded, color: FoxColors.muted),
+            ),
+        ],
+      ),
+    ),
+  );
 }
 
 class _ColorDots extends StatelessWidget {
@@ -326,18 +335,18 @@ class _ColorDots extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Wrap(
-        spacing: 4,
-        runSpacing: 4,
-        alignment: WrapAlignment.center,
-        children: [
-          for (final c in huntColorValues.values.take(4))
-            Container(
-              width: 18,
-              height: 18,
-              decoration: BoxDecoration(color: c, shape: BoxShape.circle),
-            ),
-        ],
-      );
+    spacing: 4,
+    runSpacing: 4,
+    alignment: WrapAlignment.center,
+    children: [
+      for (final c in huntColorValues.values.take(4))
+        Container(
+          width: 18,
+          height: 18,
+          decoration: BoxDecoration(color: c, shape: BoxShape.circle),
+        ),
+    ],
+  );
 }
 
 class _AlbumRow extends StatelessWidget {
@@ -353,25 +362,28 @@ class _AlbumRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Material(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(20),
-          onTap: onTap,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            child: Row(
-              children: [
-                const Icon(Icons.collections_bookmark_rounded,
-                    color: FoxColors.coral, size: 30),
-                const SizedBox(width: 12),
-                Text(label, style: display(22)),
-                const Spacer(),
-                Text(count, style: body(18, color: FoxColors.muted)),
-                const Icon(Icons.chevron_right, color: FoxColors.muted),
-              ],
+    color: Colors.white,
+    borderRadius: BorderRadius.circular(20),
+    child: InkWell(
+      borderRadius: BorderRadius.circular(20),
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: Row(
+          children: [
+            const Icon(
+              Icons.collections_bookmark_rounded,
+              color: FoxColors.coral,
+              size: 30,
             ),
-          ),
+            const SizedBox(width: 12),
+            Text(label, style: display(22)),
+            const Spacer(),
+            Text(count, style: body(18, color: FoxColors.muted)),
+            const Icon(Icons.chevron_right, color: FoxColors.muted),
+          ],
         ),
-      );
+      ),
+    ),
+  );
 }
