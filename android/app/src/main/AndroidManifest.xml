@@ -1,6 +1,21 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- Photos are analysed on the phone and deleted right away. No internet permission is needed. -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+    <!-- Everything runs on the phone: photos are analysed here and deleted
+         right away. The app needs only the camera. -->
     <uses-permission android:name="android.permission.CAMERA" />
+
+    <!-- Libraries ask for more than we use. Remove it so the app cannot reach
+         the network at all (ML Kit's usage logging, Firebase messaging) and
+         cannot record audio or read storage. `tool/check_permissions.sh`
+         fails the CI build if any of these come back. Play Billing talks to
+         the Play Store app on the phone and needs none of them. -->
+    <uses-permission android:name="android.permission.INTERNET" tools:node="remove" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" tools:node="remove" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" tools:node="remove" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" tools:node="remove" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" tools:node="remove" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" tools:node="remove" />
+    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" tools:node="remove" />
     <uses-feature android:name="android.hardware.camera" android:required="true" />
 
     <application
@@ -29,6 +44,11 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+        <!-- Firebase messaging receiver pulled in by a library; the app gets no
+             push messages. -->
+        <receiver
+            android:name="com.google.firebase.iid.FirebaseInstanceIdReceiver"
+            tools:node="remove" />
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
         <meta-data

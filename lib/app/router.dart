@@ -9,6 +9,7 @@ import '../features/home/home_screen.dart';
 import '../features/parent/gate_screen.dart';
 import '../features/parent/parent_screen.dart';
 import '../features/round/round_screen.dart';
+import '../features/setup/privacy_promise.dart';
 import '../features/setup/setup_screen.dart';
 import '../features/spike/spike_camera_screen.dart';
 import '../features/spike/spike_home_screen.dart';
@@ -37,6 +38,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/album', builder: (_, _) => const AlbumScreen()),
       GoRoute(path: '/gate', builder: (_, _) => const GateScreen()),
       GoRoute(path: '/parent', builder: (_, _) => const ParentScreen()),
+      GoRoute(path: '/privacy', builder: (_, _) => const PrivacyScreen()),
       // Recognition test from the spike, reachable from the parent zone.
       GoRoute(
         path: '/spike',

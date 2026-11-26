@@ -33,12 +33,17 @@ jobs:
       - run: flutter analyze
       - run: flutter test
 
-      # A debug APK to install on a phone for the recognition spike.
-      - run: flutter build apk --debug
+      # A release-mode APK for testing on a phone. Release mode matters: a
+      # debug build carries the INTERNET permission for Flutter's dev tools,
+      # and the app promises parents it never goes online. The test flag only
+      # adds the "test unlock" button.
+      - run: flutter build apk --release --dart-define=FOXABOO_TEST_BUILD=true
+      - name: Check the APK asks only for the camera
+        run: tool/check_permissions.sh build/app/outputs/flutter-apk/app-release.apk
       - uses: actions/upload-artifact@v4
         with:
-          name: foxaboo-debug-apk
-          path: build/app/outputs/flutter-apk/app-debug.apk
+          name: foxaboo-test-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
           retention-days: 14
 
       # Same APK as a direct download for phones:
@@ -50,10 +55,10 @@ jobs:
           GH_REPO: ${{ github.repository }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: |
-          cp build/app/outputs/flutter-apk/app-debug.apk foxaboo-spike-debug.apk
+          cp build/app/outputs/flutter-apk/app-release.apk foxaboo-spike-debug.apk
           if ! gh release view spike-latest >/dev/null 2>&1; then
             gh release create spike-latest --prerelease --target "$HEAD_SHA" \
-              --title "Foxaboo spike (debug APK)" \
+              --title "Foxaboo test APK" \
               --notes "Debug build of the recognition spike for testing on a phone. Updated on every push to an open pull request."
           fi
           gh release upload spike-latest foxaboo-spike-debug.apk --clobber

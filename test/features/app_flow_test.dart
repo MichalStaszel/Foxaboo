@@ -25,6 +25,11 @@ void main() {
   testWidgets('first launch asks for setup, then opens the start screen',
       (tester) async {
     await pumpApp(tester);
+    // First the promise that nothing leaves the phone.
+    expect(find.text('Everything stays on this phone'), findsOneWidget);
+    await tester.scrollUntilVisible(find.text('Got it'), 300);
+    await tester.tap(find.text('Got it'));
+    await tester.pumpAndSettle();
     expect(find.text('Welcome to Foxaboo!'), findsOneWidget);
 
     await tester.enterText(find.byType(TextField), 'Zosia');

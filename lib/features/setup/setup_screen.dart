@@ -8,6 +8,7 @@ import '../../l10n/languages.dart';
 import '../../l10n/strings.dart';
 import '../../widgets/common.dart';
 import '../../widgets/fox.dart';
+import 'privacy_promise.dart';
 
 /// First launch, for the parent: child's name and age, and the language
 /// pair. Nothing here leaves the phone.
@@ -23,6 +24,7 @@ class SetupScreen extends ConsumerStatefulWidget {
 class _SetupScreenState extends ConsumerState<SetupScreen> {
   final _name = TextEditingController();
   int? _age;
+  bool _promiseSeen = false;
   late String _native = defaultNativeLanguage(widget.deviceLanguage);
   late String _learn = defaultLearnLanguage(_native);
 
@@ -35,6 +37,16 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
   @override
   Widget build(BuildContext context) {
     final s = Strings(_native);
+    if (!_promiseSeen) {
+      return Scaffold(
+        body: SafeArea(
+          child: PrivacyPromise(
+            strings: s,
+            onDone: () => setState(() => _promiseSeen = true),
+          ),
+        ),
+      );
+    }
     return Scaffold(
       body: SafeArea(
         child: ListView(

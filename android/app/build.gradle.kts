@@ -29,6 +29,13 @@ android {
         versionName = flutter.versionName
     }
 
+    // Release builds run Android lint over every plugin, and lint crashes
+    // inside camera_android_camerax (NoSuchMethodError in its JavaDoc parser).
+    // Our code is Dart, so lint has nothing of ours to check.
+    lint {
+        checkReleaseBuilds = false
+    }
+
     buildTypes {
         release {
             // TODO: Add your own signing config for the release build.
