@@ -19,16 +19,16 @@ class _LangTag extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-        decoration: BoxDecoration(
-          color: FoxColors.ground,
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Text(
-          lang.toUpperCase(),
-          style: body(14, color: FoxColors.muted, weight: FontWeight.w800),
-        ),
-      );
+    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+    decoration: BoxDecoration(
+      color: FoxColors.ground,
+      borderRadius: BorderRadius.circular(8),
+    ),
+    child: Text(
+      lang.toUpperCase(),
+      style: body(14, color: FoxColors.muted, weight: FontWeight.w800),
+    ),
+  );
 }
 
 /// "PL kubek 🔊" row on the reward and time-up screens.
@@ -38,31 +38,38 @@ class WordRow extends StatelessWidget {
     required this.lang,
     required this.word,
     required this.onSpeak,
+    this.primary = false,
   });
 
   final String lang;
   final String word;
   final VoidCallback onSpeak;
 
+  /// The language being learned: bigger, so it stands out.
+  final bool primary;
+
   @override
   Widget build(BuildContext context) => Container(
-        padding: const EdgeInsets.fromLTRB(16, 8, 8, 8),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
+    padding: EdgeInsets.fromLTRB(16, primary ? 12 : 6, 8, primary ? 12 : 6),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(20),
+    ),
+    child: Row(
+      children: [
+        _LangTag(lang),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Text(
+            word,
+            style: primary ? display(42) : display(22, color: FoxColors.muted),
+            overflow: TextOverflow.ellipsis,
+          ),
         ),
-        child: Row(
-          children: [
-            _LangTag(lang),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(word,
-                  style: display(30), overflow: TextOverflow.ellipsis),
-            ),
-            SpeakerButton(onPressed: onSpeak, size: 52),
-          ],
-        ),
-      );
+        SpeakerButton(onPressed: onSpeak, size: primary ? 60 : 44),
+      ],
+    ),
+  );
 }
 
 class _ProgressDots extends StatelessWidget {
@@ -72,21 +79,21 @@ class _ProgressDots extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          for (var i = 0; i < total; i++)
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
-              width: i == index ? 26 : 12,
-              height: 12,
-              margin: const EdgeInsets.symmetric(horizontal: 3),
-              decoration: BoxDecoration(
-                color: i <= index ? FoxColors.sun : const Color(0x55FFFFFF),
-                borderRadius: BorderRadius.circular(6),
-              ),
-            ),
-        ],
-      );
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      for (var i = 0; i < total; i++)
+        AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          width: i == index ? 26 : 12,
+          height: 12,
+          margin: const EdgeInsets.symmetric(horizontal: 3),
+          decoration: BoxDecoration(
+            color: i <= index ? FoxColors.sun : const Color(0x55FFFFFF),
+            borderRadius: BorderRadius.circular(6),
+          ),
+        ),
+    ],
+  );
 }
 
 // ---- Task card --------------------------------------------------------------
@@ -144,11 +151,16 @@ class TaskView extends StatelessWidget {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(Icons.timer_outlined,
-                            color: Colors.white, size: 18),
+                        const Icon(
+                          Icons.timer_outlined,
+                          color: Colors.white,
+                          size: 18,
+                        ),
                         const SizedBox(width: 4),
-                        Text(s.t('seconds', {'s': seconds}),
-                            style: body(16, color: Colors.white)),
+                        Text(
+                          s.t('seconds', {'s': seconds}),
+                          style: body(16, color: Colors.white),
+                        ),
                       ],
                     ),
                   ),
@@ -168,34 +180,37 @@ class TaskView extends StatelessWidget {
                     children: [
                       Text(
                         s.t('find').toUpperCase(),
-                        style: body(18,
-                                color: FoxColors.muted,
-                                weight: FontWeight.w800)
-                            .copyWith(letterSpacing: 2),
+                        style: body(
+                          18,
+                          color: FoxColors.muted,
+                          weight: FontWeight.w800,
+                        ).copyWith(letterSpacing: 2),
                       ),
-                      const SizedBox(height: 16),
-                      Sticker(target: target, learnLang: learnLang, size: 140),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 8),
+                      Expanded(child: Illustration(target: target)),
+                      const SizedBox(height: 8),
                       FittedBox(
-                        child: Text(target.words[nativeLang] ?? '',
-                            style: display(56)),
+                        child: Text(
+                          target.words[learnLang] ?? '',
+                          key: const Key('task-word'),
+                          style: display(56),
+                        ),
                       ),
-                      const SizedBox(height: 6),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          _LangTag(learnLang),
+                          _LangTag(nativeLang),
                           const SizedBox(width: 8),
                           Flexible(
                             child: Text(
-                              target.words[learnLang] ?? '',
-                              style: body(24, color: FoxColors.muted),
+                              target.words[nativeLang] ?? '',
+                              style: body(20, color: FoxColors.muted),
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 12),
                       SpeakerButton(onPressed: onSpeak, size: 72),
                     ],
                   ),
@@ -214,8 +229,10 @@ class TaskView extends StatelessWidget {
               TextButton.icon(
                 onPressed: onSwap,
                 icon: const Icon(Icons.casino_rounded, color: Colors.white),
-                label: Text(s.t('somethingElse'),
-                    style: body(17, color: Colors.white)),
+                label: Text(
+                  s.t('somethingElse'),
+                  style: body(17, color: Colors.white),
+                ),
               ),
             ],
           ),
@@ -286,16 +303,17 @@ class HuntView extends StatelessWidget {
             Center(
               child: Padding(
                 padding: const EdgeInsets.all(32),
-                child: Text(cameraError!,
-                    textAlign: TextAlign.center,
-                    style: body(20, color: Colors.white)),
+                child: Text(
+                  cameraError!,
+                  textAlign: TextAlign.center,
+                  style: body(20, color: Colors.white),
+                ),
               ),
             )
           else
             const Center(child: CircularProgressIndicator(color: Colors.white)),
           if (sheet == null) const CameraFrame(),
-          if (stopped && !checking)
-            const ColoredBox(color: Color(0x99000000)),
+          if (stopped && !checking) const ColoredBox(color: Color(0x99000000)),
           // Top bar: pause and the task chip.
           SafeArea(
             child: Padding(
@@ -317,15 +335,27 @@ class HuntView extends StatelessWidget {
                           child: Row(
                             children: [
                               Sticker(
-                                  target: target,
-                                  learnLang: learnLang,
-                                  size: 40),
+                                target: target,
+                                learnLang: learnLang,
+                                size: 40,
+                              ),
                               const SizedBox(width: 10),
                               Expanded(
-                                child: Text(
-                                  '${target.words[nativeLang]} · ${target.words[learnLang]}',
-                                  style: body(18, weight: FontWeight.w800),
-                                  overflow: TextOverflow.ellipsis,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      target.words[learnLang] ?? '',
+                                      style: display(22),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    Text(
+                                      target.words[nativeLang] ?? '',
+                                      style: body(14, color: FoxColors.muted),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ],
                                 ),
                               ),
                               SpeakerButton(onPressed: onSpeak, size: 40),
@@ -342,8 +372,11 @@ class HuntView extends StatelessWidget {
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(Icons.pause_circle_filled_rounded,
-                              color: FoxColors.ink, size: 20),
+                          const Icon(
+                            Icons.pause_circle_filled_rounded,
+                            color: FoxColors.ink,
+                            size: 20,
+                          ),
                           const SizedBox(width: 6),
                           Text(s.t('timeStops'), style: body(16)),
                         ],
@@ -358,19 +391,19 @@ class HuntView extends StatelessWidget {
             alignment: Alignment.bottomCenter,
             child: switch (sheet) {
               null => _ShutterPanel(
-                  hint: s.t('aimHint'),
-                  fractionLeft: fractionLeft,
-                  onShoot: checking || paused ? null : onShoot,
-                ),
+                hint: s.t('aimHint'),
+                fractionLeft: fractionLeft,
+                onShoot: checking || paused ? null : onShoot,
+              ),
               final kind => _AlmostSheet(
-                  kind: kind,
-                  word: target.words[nativeLang] ?? '',
-                  target: target,
-                  learnLang: learnLang,
-                  strings: s,
-                  onTryAgain: onTryAgain,
-                  onParentOverride: onParentOverride,
-                ),
+                kind: kind,
+                word: target.words[nativeLang] ?? '',
+                target: target,
+                learnLang: learnLang,
+                strings: s,
+                onTryAgain: onTryAgain,
+                onParentOverride: onParentOverride,
+              ),
             },
           ),
           if (checking)
@@ -378,15 +411,19 @@ class HuntView extends StatelessWidget {
               color: const Color(0x66000000),
               child: Center(
                 child: Pill(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 16,
+                  ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       const SizedBox.square(
                         dimension: 24,
                         child: CircularProgressIndicator(
-                            strokeWidth: 3, color: FoxColors.jungle),
+                          strokeWidth: 3,
+                          color: FoxColors.jungle,
+                        ),
                       ),
                       const SizedBox(width: 12),
                       Text(s.t('checking'), style: display(24)),
@@ -438,46 +475,53 @@ class _ShutterPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-        width: double.infinity,
-        padding: EdgeInsets.fromLTRB(
-            20, 20, 20, 20 + MediaQuery.paddingOf(context).bottom),
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TimerRing(
-              fraction: fractionLeft,
-              child: Semantics(
-                button: true,
-                label: hint,
-                child: GestureDetector(
-                  onTap: onShoot,
-                  child: Container(
-                    key: const Key('shutter'),
-                    width: 96,
-                    height: 96,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: FoxColors.jungle,
-                      border: Border.all(color: Colors.white, width: 6),
-                      boxShadow: const [
-                        BoxShadow(color: FoxColors.jungleDark, blurRadius: 0),
-                      ],
-                    ),
-                    child: const Icon(Icons.photo_camera_rounded,
-                        color: Colors.white, size: 40),
-                  ),
+    width: double.infinity,
+    padding: EdgeInsets.fromLTRB(
+      20,
+      20,
+      20,
+      20 + MediaQuery.paddingOf(context).bottom,
+    ),
+    decoration: const BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+    ),
+    child: Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        TimerRing(
+          fraction: fractionLeft,
+          child: Semantics(
+            button: true,
+            label: hint,
+            child: GestureDetector(
+              onTap: onShoot,
+              child: Container(
+                key: const Key('shutter'),
+                width: 96,
+                height: 96,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: FoxColors.jungle,
+                  border: Border.all(color: Colors.white, width: 6),
+                  boxShadow: const [
+                    BoxShadow(color: FoxColors.jungleDark, blurRadius: 0),
+                  ],
+                ),
+                child: const Icon(
+                  Icons.photo_camera_rounded,
+                  color: Colors.white,
+                  size: 40,
                 ),
               ),
             ),
-            const SizedBox(height: 12),
-            Text(hint, style: body(18, color: FoxColors.muted)),
-          ],
+          ),
         ),
-      );
+        const SizedBox(height: 12),
+        Text(hint, style: body(18, color: FoxColors.muted)),
+      ],
+    ),
+  );
 }
 
 class _AlmostSheet extends StatelessWidget {
@@ -506,7 +550,11 @@ class _AlmostSheet extends StatelessWidget {
     return Container(
       width: double.infinity,
       padding: EdgeInsets.fromLTRB(
-          24, 24, 24, 16 + MediaQuery.paddingOf(context).bottom),
+        24,
+        24,
+        24,
+        16 + MediaQuery.paddingOf(context).bottom,
+      ),
       decoration: const BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
@@ -516,8 +564,11 @@ class _AlmostSheet extends StatelessWidget {
         children: [
           Fox(size: 84, mood: almost ? FoxMood.wink : FoxMood.sad),
           const SizedBox(height: 8),
-          Text(almost ? s.t('almost') : s.t('notIt'),
-              style: display(almost ? 40 : 30), textAlign: TextAlign.center),
+          Text(
+            almost ? s.t('almost') : s.t('notIt'),
+            style: display(almost ? 40 : 30),
+            textAlign: TextAlign.center,
+          ),
           const SizedBox(height: 8),
           Text(
             almost
@@ -531,13 +582,15 @@ class _AlmostSheet extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Sticker(target: target, learnLang: learnLang, size: 36),
+                Illustration(target: target, size: 40),
                 const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 12),
-                  child: Icon(Icons.arrow_forward_rounded,
-                      color: FoxColors.muted),
+                  child: Icon(
+                    Icons.arrow_forward_rounded,
+                    color: FoxColors.muted,
+                  ),
                 ),
-                Sticker(target: target, learnLang: learnLang, size: 72),
+                Illustration(target: target, size: 88),
               ],
             ),
           ],
@@ -551,10 +604,15 @@ class _AlmostSheet extends StatelessWidget {
           const SizedBox(height: 8),
           TextButton.icon(
             onPressed: onParentOverride,
-            icon: const Icon(Icons.lock_rounded,
-                size: 18, color: FoxColors.muted),
-            label: Text(s.t('parentSays', {'word': word}),
-                style: body(15, color: FoxColors.muted)),
+            icon: const Icon(
+              Icons.lock_rounded,
+              size: 18,
+              color: FoxColors.muted,
+            ),
+            label: Text(
+              s.t('parentSays', {'word': word}),
+              style: body(15, color: FoxColors.muted),
+            ),
           ),
         ],
       ),
@@ -575,37 +633,38 @@ class _PauseOverlay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => ColoredBox(
-        color: const Color(0xCC14241A),
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(32),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Fox(size: 110, mood: FoxMood.wink),
-                const SizedBox(height: 12),
-                Text(strings.t('paused'),
-                    style: display(44, color: Colors.white)),
-                const SizedBox(height: 32),
-                BigButton(
-                  label: strings.t('resume'),
-                  icon: Icons.play_arrow_rounded,
-                  color: FoxColors.sun,
-                  shadow: FoxColors.sunDark,
-                  textColor: FoxColors.ink,
-                  onPressed: onResume,
-                ),
-                const SizedBox(height: 16),
-                TextButton(
-                  onPressed: onEnd,
-                  child: Text(strings.t('endRound'),
-                      style: body(18, color: Colors.white)),
-                ),
-              ],
+    color: const Color(0xCC14241A),
+    child: SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Fox(size: 110, mood: FoxMood.wink),
+            const SizedBox(height: 12),
+            Text(strings.t('paused'), style: display(44, color: Colors.white)),
+            const SizedBox(height: 32),
+            BigButton(
+              label: strings.t('resume'),
+              icon: Icons.play_arrow_rounded,
+              color: FoxColors.sun,
+              shadow: FoxColors.sunDark,
+              textColor: FoxColors.ink,
+              onPressed: onResume,
             ),
-          ),
+            const SizedBox(height: 16),
+            TextButton(
+              onPressed: onEnd,
+              child: Text(
+                strings.t('endRound'),
+                style: body(18, color: Colors.white),
+              ),
+            ),
+          ],
         ),
-      );
+      ),
+    ),
+  );
 }
 
 // ---- Reward and time up -----------------------------------------------------
@@ -645,8 +704,10 @@ class RewardView extends StatelessWidget {
               child: Column(
                 children: [
                   Text(s.t('bravo'), style: display(56)),
-                  Text(s.t('foundIn', {'s': secs}),
-                      style: body(20, weight: FontWeight.w800)),
+                  Text(
+                    s.t('foundIn', {'s': secs}),
+                    style: body(20, weight: FontWeight.w800),
+                  ),
                   const Spacer(),
                   Transform.rotate(
                     angle: -0.06,
@@ -660,12 +721,12 @@ class RewardView extends StatelessWidget {
                             borderRadius: BorderRadius.circular(32),
                             boxShadow: const [
                               BoxShadow(
-                                  color: FoxColors.sunDark,
-                                  offset: Offset(0, 8)),
+                                color: FoxColors.sunDark,
+                                offset: Offset(0, 8),
+                              ),
                             ],
                           ),
-                          child: Sticker(
-                              target: target, learnLang: learnLang, size: 150),
+                          child: Illustration(target: target, size: 170),
                         ),
                         if (result.isNew)
                           Positioned(
@@ -675,8 +736,10 @@ class RewardView extends StatelessWidget {
                               angle: 0.18,
                               child: Pill(
                                 color: FoxColors.coral,
-                                child: Text(s.t('newSticker'),
-                                    style: body(16, color: Colors.white)),
+                                child: Text(
+                                  s.t('newSticker'),
+                                  style: body(16, color: Colors.white),
+                                ),
                               ),
                             ),
                           ),
@@ -685,15 +748,16 @@ class RewardView extends StatelessWidget {
                   ),
                   const Spacer(),
                   WordRow(
-                    lang: nativeLang,
-                    word: target.words[nativeLang] ?? '',
-                    onSpeak: () => onSpeak(nativeLang),
-                  ),
-                  const SizedBox(height: 10),
-                  WordRow(
                     lang: learnLang,
                     word: target.words[learnLang] ?? '',
                     onSpeak: () => onSpeak(learnLang),
+                    primary: true,
+                  ),
+                  const SizedBox(height: 10),
+                  WordRow(
+                    lang: nativeLang,
+                    word: target.words[nativeLang] ?? '',
+                    onSpeak: () => onSpeak(nativeLang),
                   ),
                   const SizedBox(height: 24),
                   BigButton(
@@ -744,24 +808,34 @@ class TimeUpView extends StatelessWidget {
               const Fox(size: 110, mood: FoxMood.wink),
               const SizedBox(height: 8),
               Text(s.t('timeUp'), style: display(44, color: Colors.white)),
-              Text(s.t('nextTime'),
-                  style: body(18, color: Colors.white),
-                  textAlign: TextAlign.center),
+              Text(
+                s.t('nextTime'),
+                style: body(18, color: Colors.white),
+                textAlign: TextAlign.center,
+              ),
               const Spacer(),
               Text(s.t('itWas'), style: body(20, color: Colors.white)),
               const SizedBox(height: 12),
-              Sticker(target: target, learnLang: learnLang, size: 130),
-              const Spacer(),
-              WordRow(
-                lang: nativeLang,
-                word: target.words[nativeLang] ?? '',
-                onSpeak: () => onSpeak(nativeLang),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(28),
+                ),
+                child: Illustration(target: target, size: 140),
               ),
-              const SizedBox(height: 10),
+              const Spacer(),
               WordRow(
                 lang: learnLang,
                 word: target.words[learnLang] ?? '',
                 onSpeak: () => onSpeak(learnLang),
+                primary: true,
+              ),
+              const SizedBox(height: 10),
+              WordRow(
+                lang: nativeLang,
+                word: target.words[nativeLang] ?? '',
+                onSpeak: () => onSpeak(nativeLang),
               ),
               const SizedBox(height: 24),
               BigButton(
@@ -845,8 +919,10 @@ class SummaryView extends StatelessWidget {
               const SizedBox(height: 12),
               TextButton(
                 onPressed: onHome,
-                child: Text(s.t('home'),
-                    style: body(18, color: FoxColors.jungle)),
+                child: Text(
+                  s.t('home'),
+                  style: body(18, color: FoxColors.jungle),
+                ),
               ),
             ],
           ),

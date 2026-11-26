@@ -30,8 +30,18 @@ Rules the code keeps:
 - **Free play:** colours and the kitchen. The rest is one Google Play
   purchase (`full_unlock`), only in the parent zone. Debug builds have a
   "test unlock" button instead.
-- **Album uses pictures, never photos.** Stickers are placeholders (Material
-  icons or a letter) until the illustrated set exists.
+- **Two recognisers for items.** ML Kit's image labeler plus an object
+  detector (EfficientDet-Lite2 on COCO, MediaPipe, Apache 2.0, in
+  `assets/models`); the better verdict wins. ML Kit describes the whole
+  scene and has no label for laptop, keyboard, remote, book, bed or fridge,
+  so big objects like a sofa often lost to "Room" or "Wall". On 600 Open
+  Images photos the detector finds sofa 80%, TV 93%, laptop 67% at about 1%
+  false positives (`detectorThresholds`).
+- **Items are concrete things** (laptop, toy car, teddy bear), each with an
+  illustration of exactly that thing in `assets/illustrations`, drawn by
+  `tool/illustrations/make_illustrations.py`. The album shows these
+  pictures, never photos.
+- The word in the language being learned is the big one on every screen.
 - Up to three children, each with their own album and stats.
 
 The recognition test from the spike is still there: parent zone →
@@ -62,16 +72,20 @@ lib/
   l10n/         languages and UI strings (pl, en, de, es, fr)
   narrator/     Narrator interface; text-to-speech for now
   purchase/     the one-time unlock (Google Play Billing)
-  recognition/  Recognizer: ML Kit labels for items, HSV for colours
+  recognition/  Recognizer: ML Kit labels + object detector for items,
+                HSV for colours
   widgets/      fox mascot, stickers, buttons, timer ring
   features/     home, round, album, parent (gate + zone), setup, spike
-assets/content/base/pack.json   items, colours, words in 5 languages
+assets/content/base/pack.json   items, colours, words in 5 languages,
+                                ML Kit labels and detector classes
+assets/illustrations/           one SVG per item
+assets/models/                  EfficientDet-Lite2 (int8, 7.5 MB)
 assets/fonts/                   Baloo 2 and Nunito with their OFL licences
 tool/screenshots/               renders every screen to PNG for review
 ```
 
-To add an item, add it to `pack.json` with its words in every app language
-and the ML Kit labels
+To add an item, add it to `pack.json` with its words in every app language,
+an illustration, the detector classes (COCO) and/or the ML Kit labels
 that count as finding it. The labels must come from the
 [ML Kit base model label list](https://developers.google.com/ml-kit/vision/image-labeling/label-map);
 `test/content/base_pack_test.dart` checks this.

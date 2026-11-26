@@ -54,8 +54,8 @@ class ParentScreen extends ConsumerWidget {
                   ListTile(
                     contentPadding: EdgeInsets.zero,
                     leading: CircleAvatar(
-                      backgroundColor: FoxColors.stickers[
-                          p.colorIndex % FoxColors.stickers.length],
+                      backgroundColor: FoxColors
+                          .stickers[p.colorIndex % FoxColors.stickers.length],
                       child: Text(
                         p.name.characters.first.toUpperCase(),
                         style: display(20, color: Colors.white),
@@ -64,16 +64,20 @@ class ParentScreen extends ConsumerWidget {
                     title: Text(p.name, style: display(22)),
                     subtitle: p.age == null
                         ? null
-                        : Text(s.t('age', {'age': p.age!}),
-                            style: body(15, color: FoxColors.muted)),
+                        : Text(
+                            s.t('age', {'age': p.age!}),
+                            style: body(15, color: FoxColors.muted),
+                          ),
                     selected: p.id == profile?.id,
                     onTap: () => store.selectProfile(p.id),
                     trailing: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         if (p.id == profile?.id)
-                          const Icon(Icons.check_circle,
-                              color: FoxColors.jungle),
+                          const Icon(
+                            Icons.check_circle,
+                            color: FoxColors.jungle,
+                          ),
                         PopupMenuButton<String>(
                           onSelected: (action) async {
                             if (action == 'delete') {
@@ -81,23 +85,32 @@ class ParentScreen extends ConsumerWidget {
                               return;
                             }
                             final edited = await showProfileDialog(
-                                context, s,
-                                name: p.name, age: p.age);
+                              context,
+                              s,
+                              name: p.name,
+                              age: p.age,
+                            );
                             if (edited != null) {
-                              store.updateProfile(Profile(
-                                id: p.id,
-                                name: edited.$1,
-                                age: edited.$2,
-                                colorIndex: p.colorIndex,
-                              ));
+                              store.updateProfile(
+                                Profile(
+                                  id: p.id,
+                                  name: edited.$1,
+                                  age: edited.$2,
+                                  colorIndex: p.colorIndex,
+                                ),
+                              );
                             }
                           },
                           itemBuilder: (_) => [
                             PopupMenuItem(
-                                value: 'edit', child: Text(s.t('change'))),
+                              value: 'edit',
+                              child: Text(s.t('change')),
+                            ),
                             if (data.profiles.length > 1)
                               PopupMenuItem(
-                                  value: 'delete', child: Text(s.t('delete'))),
+                                value: 'delete',
+                                child: Text(s.t('delete')),
+                              ),
                           ],
                         ),
                       ],
@@ -123,7 +136,8 @@ class ParentScreen extends ConsumerWidget {
           Row(
             children: [
               _Stat(
-                value: '${progress.finds.length}',
+                value:
+                    '${progress.finds.keys.where(pack.targetIds.contains).length}',
                 label: s.t('statWords'),
               ),
               const SizedBox(width: 10),
@@ -147,8 +161,10 @@ class ParentScreen extends ConsumerWidget {
                 Text(s.t('recentWords'), style: display(20)),
                 const SizedBox(height: 8),
                 if (recent.isEmpty)
-                  Text(s.t('noWordsYet'),
-                      style: body(15, color: FoxColors.muted))
+                  Text(
+                    s.t('noWordsYet'),
+                    style: body(15, color: FoxColors.muted),
+                  )
                 else
                   Wrap(
                     spacing: 8,
@@ -177,9 +193,14 @@ class ParentScreen extends ConsumerWidget {
               children: [
                 Text(s.t('settings'), style: display(20)),
                 const SizedBox(height: 12),
-                Text(s.t('timePerItem'),
-                    style: body(14,
-                        color: FoxColors.muted, weight: FontWeight.w800)),
+                Text(
+                  s.t('timePerItem'),
+                  style: body(
+                    14,
+                    color: FoxColors.muted,
+                    weight: FontWeight.w800,
+                  ),
+                ),
                 const SizedBox(height: 6),
                 SizedBox(
                   width: double.infinity,
@@ -189,13 +210,16 @@ class ParentScreen extends ConsumerWidget {
                       for (final sec in GameSettings.secondsOptions)
                         ButtonSegment(
                           value: sec,
-                          label: Text(s.t('seconds', {'s': sec}),
-                              style: body(16)),
+                          label: Text(
+                            s.t('seconds', {'s': sec}),
+                            style: body(16),
+                          ),
                         ),
                     ],
                     selected: {settings.roundSeconds},
                     onSelectionChanged: (v) => store.updateSettings(
-                        settings.copyWith(roundSeconds: v.first)),
+                      settings.copyWith(roundSeconds: v.first),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -204,7 +228,8 @@ class ParentScreen extends ConsumerWidget {
                   native: settings.nativeLang,
                   learn: settings.learnLang,
                   onChanged: (n, l) => store.updateSettings(
-                      settings.copyWith(nativeLang: n, learnLang: l)),
+                    settings.copyWith(nativeLang: n, learnLang: l),
+                  ),
                 ),
                 const SizedBox(height: 8),
                 SwitchListTile(
@@ -226,9 +251,14 @@ class ParentScreen extends ConsumerWidget {
               const Icon(Icons.shield_rounded, color: FoxColors.jungle),
               const SizedBox(width: 8),
               Expanded(
-                child: Text(s.t('privacyNote'),
-                    style: body(14,
-                        color: FoxColors.muted, weight: FontWeight.w600)),
+                child: Text(
+                  s.t('privacyNote'),
+                  style: body(
+                    14,
+                    color: FoxColors.muted,
+                    weight: FontWeight.w600,
+                  ),
+                ),
               ),
             ],
           ),
@@ -272,10 +302,10 @@ class _Card extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Material(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        child: Padding(padding: const EdgeInsets.all(16), child: child),
-      );
+    color: Colors.white,
+    borderRadius: BorderRadius.circular(24),
+    child: Padding(padding: const EdgeInsets.all(16), child: child),
+  );
 }
 
 class _Stat extends StatelessWidget {
@@ -285,23 +315,24 @@ class _Stat extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Expanded(
-        child: Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(20),
+    child: Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(value, style: display(30, color: FoxColors.jungle)),
+          Text(
+            label,
+            style: body(13, color: FoxColors.muted, weight: FontWeight.w600),
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(value, style: display(30, color: FoxColors.jungle)),
-              Text(label,
-                  style: body(13,
-                      color: FoxColors.muted, weight: FontWeight.w600)),
-            ],
-          ),
-        ),
-      );
+        ],
+      ),
+    ),
+  );
 }
 
 class _UnlockCard extends ConsumerWidget {
@@ -354,17 +385,20 @@ class _UnlockCard extends ConsumerWidget {
                 TextButton(
                   onPressed: () =>
                       ref.read(purchaseProvider.notifier).restore(),
-                  child: Text(s.t('restore'),
-                      style: body(14, color: Colors.white)),
+                  child: Text(
+                    s.t('restore'),
+                    style: body(14, color: Colors.white),
+                  ),
                 ),
                 // Debug builds (the test APK) can unlock without the store.
                 if (kDebugMode)
                   TextButton(
-                    onPressed: () => ref
-                        .read(appStoreProvider.notifier)
-                        .setFullUnlock(true),
-                    child: Text(s.t('testUnlock'),
-                        style: body(14, color: FoxColors.sun)),
+                    onPressed: () =>
+                        ref.read(appStoreProvider.notifier).setFullUnlock(true),
+                    child: Text(
+                      s.t('testUnlock'),
+                      style: body(14, color: FoxColors.sun),
+                    ),
                   ),
               ],
             ),
@@ -372,8 +406,10 @@ class _UnlockCard extends ConsumerWidget {
             TextButton(
               onPressed: () =>
                   ref.read(appStoreProvider.notifier).setFullUnlock(false),
-              child: Text('Lock again (debug)',
-                  style: body(14, color: FoxColors.sun)),
+              child: Text(
+                'Lock again (debug)',
+                style: body(14, color: FoxColors.sun),
+              ),
             ),
         ],
       ),

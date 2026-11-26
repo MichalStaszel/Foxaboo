@@ -5,24 +5,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:foxaboo/content/models.dart';
 import 'package:foxaboo/l10n/languages.dart';
 import 'package:foxaboo/recognition/color_classifier.dart';
+import 'package:foxaboo/recognition/detector_classes.dart';
 
-/// Labels of the ML Kit base image-labeling model that the pack may use.
-/// Source: developers.google.com/ml-kit/vision/image-labeling/label-map
-/// (only the ones relevant to homes; extend when adding items).
-const mlKitLabels = {
-  'Aquarium', 'Bag', 'Balloon', 'Beanie', 'Bicycle', 'Blazer', 'Bread',
-  'Cabinetry', 'Cake', 'Cap', 'Cappuccino', 'Car', 'Cat', 'Chair', 'Clock',
-  'Coffee', 'Computer', 'Cookie', 'Cookware and bakeware', 'Couch', 'Cup',
-  'Curtain', 'Cushion', 'Cutlery', 'Denim', 'Desk', 'Dog', 'Drawer', 'Flora',
-  'Flower', 'Flowerpot', 'Fruit', 'Glasses', 'Goggles', 'Handbag', 'Handrail',
-  'Hat', 'Helmet', 'Icing', 'Jacket', 'Jeans', 'Jewellery', 'Juice',
-  'Lampshade', 'Lego', 'Loveseat', 'Miniature', 'Mobile phone', 'Money',
-  'Musical instrument', 'Necklace', 'News', 'Newspaper', 'Outerwear', 'Paper',
-  'Petal', 'Piano', 'Pie', 'Pillow', 'Plant', 'Plush', 'Porcelain', 'Poster',
-  'Saucer', 'Scarf', 'Shoe', 'Sink', 'Skateboard', 'Sneakers', 'Stairs',
-  'Stuffed toy', 'Sunglasses', 'Tableware', 'Television', 'Toy', 'Umbrella',
-  'Vegetable', 'Vehicle', 'Wheel',
-};
+import 'ml_kit_labels.dart';
 
 void main() {
   late ContentPack pack;
@@ -32,8 +17,8 @@ void main() {
     pack = ContentPack.fromJson(jsonDecode(raw) as Map<String, dynamic>);
   });
 
-  test('base pack has 50 items in known rooms', () {
-    expect(pack.items, hasLength(50));
+  test('base pack has 46 items in known rooms', () {
+    expect(pack.items, hasLength(46));
     final rooms = {for (final r in pack.rooms) r.id};
     for (final item in pack.items) {
       expect(rooms, contains(item.room), reason: item.id);
@@ -45,14 +30,25 @@ void main() {
     expect(ids.toSet(), hasLength(ids.length));
   });
 
-  test('every item has Polish and English words and model labels', () {
+  test('every item can be recognised by at least one model', () {
     for (final item in pack.items) {
-      expect(item.words['pl'], isNotEmpty, reason: item.id);
-      expect(item.words['en'], isNotEmpty, reason: item.id);
-      expect(item.labels, isNotEmpty, reason: item.id);
+      expect([...item.labels, ...item.detect], isNotEmpty, reason: item.id);
       for (final label in item.labels) {
         expect(mlKitLabels, contains(label), reason: '${item.id}: $label');
       }
+      for (final c in item.detect) {
+        expect(detectorClasses, contains(c), reason: '${item.id}: $c');
+      }
+    }
+  });
+
+  test('every item has an illustration', () {
+    for (final item in pack.items) {
+      expect(
+        File('assets/illustrations/${item.id}.svg').existsSync(),
+        isTrue,
+        reason: item.id,
+      );
     }
   });
 
