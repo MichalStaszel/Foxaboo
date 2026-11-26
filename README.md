@@ -18,8 +18,11 @@ while a photo is checked and while the app is in the background.
 Rules the code keeps:
 
 - **Nothing leaves the phone.** Recognition is on-device, each photo is
-  deleted right after the check, there is no account, analytics, ads or
-  Firebase, and the main manifest has no INTERNET permission. Fonts are
+  deleted right after the check, there is no account, analytics or ads. The
+  manifest strips INTERNET, network state, audio, storage and push
+  permissions that libraries (ML Kit's usage logging, Firebase) add, and CI
+  fails if the built APK asks for anything but the camera
+  (`tool/check_permissions.sh`). The first screen tells parents so. Fonts are
   bundled (Baloo 2 and Nunito, OFL), never downloaded.
 - **Any language pair.** UI and content in Polish, English, German, Spanish
   and French; the parent picks the child's language and the one to learn.
@@ -56,7 +59,8 @@ flutter run            # on an Android phone with USB debugging
 flutter test tool/screenshots --update-goldens   # PNGs of every screen
 ```
 
-Every pull request also builds a debug APK in GitHub Actions. The latest one
+Every pull request also builds a release-mode test APK in GitHub Actions
+(`--dart-define=FOXABOO_TEST_BUILD=true` adds a "test unlock" button). The latest one
 is published as the `spike-latest` prerelease, so a phone signed in to GitHub
 can download it directly:
 https://github.com/MichalStaszel/Foxaboo/releases/download/spike-latest/foxaboo-spike-debug.apk

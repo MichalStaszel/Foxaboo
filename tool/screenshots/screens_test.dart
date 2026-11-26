@@ -71,7 +71,10 @@ void main() {
 
   testWidgets('setup', (t) async {
     await pumpApp(t);
-    await shot(t, '00-setup');
+    await shot(t, '00-privacy');
+    await t.scrollUntilVisible(find.text('Got it, next'), 300);
+    await t.tap(find.text('Got it, next'));
+    await shot(t, '00b-setup');
   });
 
   testWidgets('home', (t) async {

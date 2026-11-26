@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
@@ -8,6 +7,7 @@ import '../../content/content_repository.dart';
 import '../../content/models.dart';
 import '../../data/app_data.dart';
 import '../../data/app_store.dart';
+import '../../app/build_flags.dart';
 import '../../l10n/strings.dart';
 import '../../purchase/purchase_service.dart';
 import '../setup/setup_screen.dart';
@@ -267,21 +267,7 @@ class ParentScreen extends ConsumerWidget {
             spacing: 8,
             children: [
               TextButton(
-                onPressed: () => showDialog<void>(
-                  context: context,
-                  builder: (context) => AlertDialog(
-                    title: Text(s.t('privacy'), style: display(24)),
-                    content: SingleChildScrollView(
-                      child: Text(s.t('privacyBody'), style: body(15)),
-                    ),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.pop(context),
-                        child: Text(s.t('close')),
-                      ),
-                    ],
-                  ),
-                ),
+                onPressed: () => context.push('/privacy'),
                 child: Text(s.t('privacy')),
               ),
               TextButton(
@@ -390,8 +376,8 @@ class _UnlockCard extends ConsumerWidget {
                     style: body(14, color: Colors.white),
                   ),
                 ),
-                // Debug builds (the test APK) can unlock without the store.
-                if (kDebugMode)
+                // The test APK can unlock without the store.
+                if (testBuild)
                   TextButton(
                     onPressed: () =>
                         ref.read(appStoreProvider.notifier).setFullUnlock(true),
@@ -402,7 +388,7 @@ class _UnlockCard extends ConsumerWidget {
                   ),
               ],
             ),
-          ] else if (kDebugMode)
+          ] else if (testBuild)
             TextButton(
               onPressed: () =>
                   ref.read(appStoreProvider.notifier).setFullUnlock(false),
